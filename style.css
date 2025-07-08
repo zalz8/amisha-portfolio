@@ -1,0 +1,791 @@
+/* Basic reset and background */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  overflow: hidden;
+  font-family: 'Press Start 2P', cursive;
+}
+
+/* Container for your scenes (desktop images) */
+.scene-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Individual scene images */
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none; /* Make sure scenes are not visible by default unless active */
+}
+
+/* Scene 1 should be the one initially active in your HTML like: <img id="scene1" class="scene active" ...> */
+.scene.active {
+    display: block; /* Only the active scene should be displayed */
+}
+
+/* Zoom animation for the initial scene */
+@keyframes zoomIn {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.80);
+  }
+}
+.zooming {
+  animation: zoomIn 1.7s ease forwards;
+  transform-origin:  50% 50.25%;
+}
+
+/* Red button */
+#redButton {
+  position: absolute;
+  top: 68.9%;
+  left: 54.6%;
+  width: 20px;
+  height: 10px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* Monitor Back Button */
+#monitorBackButton {
+  position: absolute;
+  top: 84.8%;
+  left: 58.8%;
+  width: 30px;
+  height: 15px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 4;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* --- CRITICAL CSS ADJUSTMENTS FOR FADE CLASSES --- */
+.fade-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  /* When hiding, transition opacity and then hide visibility after the transition */
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+  /* IMPORTANT: Only set display: none on the *next tick* via JS,
+     or allow JS to explicitly set display: none when *fully* hidden.
+     Removing display: none from here means you might need to set it on elements
+     that are *initially* hidden and then shown.
+     For instructionBox, it starts with fade-hidden, so display: none should NOT be here. */
+}
+
+.fade-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  /* When showing, transition opacity immediately */
+  transition: opacity 0.5s ease;
+  /* IMPORTANT: You might need to add `display: block !important;` here if the element
+     starts with `display: none` and needs to be revealed. For `#instructionBox`,
+     we'll manage its initial display state directly below. */
+}
+
+
+/* Desktop icons */
+.desktop-icons {
+  position: absolute;
+  top: 51%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; /* Keep this */
+  gap: 30px;
+  z-index: 3;
+  /* desktop-icons starts with `fade-hidden` in HTML, so it will be hidden initially.
+     When shown, JS will remove `fade-hidden` and likely add `fade-visible` (if used). */
+}
+
+.icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  user-select: none;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+}
+
+.icon img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 5px;
+  image-rendering: pixelated;
+  opacity: 0.85;
+  filter: brightness(0.9) saturate(0.8) hue-rotate(5deg);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.icon span {
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8),
+               1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* LED overlay */
+.led-screen-overlay {
+  position: absolute;
+  top: 23.5%;
+  left: 27.8%;
+  width: 43%;
+  height: 53.5%;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 255, 0.03),
+    rgba(0, 255, 255, 0.03) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.2),
+    0 0 40px rgba(255, 0, 0, 0.2);
+  animation: flicker 0.15s infinite alternate;
+  /* Starts with fade-hidden in HTML, so will be hidden initially */
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.7;
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    filter: hue-rotate(45deg);
+  }
+}
+
+/* --- Window styling (CRITICAL CHANGES HERE) --- */
+.window,
+.popup-image-full {
+  position: absolute;
+  background-color: #e8e8e0;
+  border-top: 2px solid #f2f2ed;
+  border-left: 2px solid #f2f2ed;
+  border-right: 2px solid #c0c0b8;
+  border-bottom: 2px solid #c0c0b8;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  width: 480px;
+  height: 360px;
+  z-index: 100;
+  overflow: hidden;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+
+  /* INITIAL HIDDEN STATE FOR WINDOWS */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  display: none; /* Windows should be fully hidden when not active */
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s, display 0s linear 0.3s;
+}
+
+/* Active State for Windows and Popups */
+.window.active,
+.popup-image-full.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    display: flex; /* Or 'block' depending on content. Make sure it's visible. */
+    transition: opacity 0.3s ease; /* Only transition opacity when appearing */
+}
+
+.window.maximized {
+  width: 100vw !important;
+  height: 100vh !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  position: fixed !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.window-header {
+  background: linear-gradient(to right, #4a678d, #7c9cbc);
+  color: #ffffff;
+  padding: 3px 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  cursor: grab;
+  user-select: none;
+  border-bottom: 1px solid #c0c0b8;
+}
+
+.window-title {
+  margin-left: 5px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+}
+
+.window-controls {
+  display: flex;
+}
+
+.window-control-button {
+  background-color: #e8e8e0;
+  border: 2px solid;
+  border-color: #f2f2ed #c0c0b8 #c0c0b8 #f2f2ed;
+  width: 20px;
+  height: 18px;
+  margin-left: 2px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  font-family: 'Press Start 2P', cursive;
+}
+
+.window-control-button:active {
+  border-color: #c0c0b8 #f2f2ed #f2f2ed #c0c0b8;
+  box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Adjustments for General Window Content Appearance --- */
+.window-content {
+  flex-grow: 1;
+  background-color: #FFFFFF;
+  padding: 10px;
+  overflow-y: auto;
+  border-top: 1px solid #c0c0b8;
+  border-left: 1px solid #c0c0b8;
+  border-right: 1px solid #c0c0b8;
+  border-bottom: 1px solid #c0c0b8;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  position: relative;
+}
+
+/* Specific styling for paragraphs inside window content */
+.window-content p {
+    margin-bottom: 10px;
+    margin-top: 0;
+}
+
+.path-bar {
+  background-color: #f5f5f0;
+  border: 1px inset #c0c0b8;
+  padding: 3px 5px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: #333;
+  font-family: 'Courier New', monospace;
+}
+
+/* UPDATED: folder-grid for fixed 3 columns */
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.folder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #000;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  user-select: none;
+  text-overflow: ellipsis;
+  padding: 5px;
+}
+
+.folder img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 5px;
+  image-rendering: pixelated;
+}
+
+.folder:hover {
+  background-color: rgba(180, 200, 220, 0.4);
+  border-radius: 3px;
+}
+
+.folder:hover span {
+  color: #000;
+}
+
+/* Styling for the new dentsu-image-icons within the reflection popup */
+.folder.dentsu-image-icon img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 5px;
+  image-rendering: pixelated;
+  opacity: 0.85;
+  filter: brightness(0.9) saturate(0.8) hue-rotate(5deg);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.folder.dentsu-image-icon span {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #000;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.2),
+               1px 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+/* Dino Game styles */
+.socials-game-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  padding: 0;
+  background-color: #f0f0f0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+}
+#gameContainer {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 200px;
+  background-color: #ffffff;
+  border-bottom: 2px solid #333;
+  overflow: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+#gameBottomBackground {
+  width: 100%;
+  max-width: 500px;
+  height: 80px;
+  background-image: url('images/dark.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+  z-index: 0;
+}
+
+#ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0px;
+  background-color: transparent;
+  z-index: 1;
+}
+#character {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background-image: url('images/dino.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  bottom: 0px;
+  left: 50px;
+  transition: bottom 0.15s ease-out;
+  image-rendering: pixelated;
+}
+
+#block {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  background-image: url('images/cactus1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  bottom: 0px;
+  right: -30px;
+  image-rendering: pixelated;
+}
+
+#scoreDisplay {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  color: #555;
+  z-index: 2;
+}
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: none;
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    color: #333;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+}
+
+.game-overlay p {
+  margin: 5px 0;
+  font-size: 10px;
+}
+
+.intro-text-small {
+    font-size: 6px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: block;
+    color: #666;
+}
+
+.skip-game-text {
+    margin-top: 15px;
+}
+.clickable-text {
+    font-size: 10px;
+    color: #0000FF;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: color 0.2s ease;
+}
+
+.clickable-text:hover {
+    color: #FF0000;
+}
+
+#gameOverScreen p {
+  color: #FF0000;
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.game-button {
+  background-color: #e8e8e0;
+  border: 2px solid #c0c0b8;
+  padding: 6px 12px;
+  margin-top: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  cursor: pointer;
+  box-shadow: 2px 2px #999;
+}
+
+.game-button:hover {
+  background-color: #d0d0c8;
+}
+
+/* Styles for the social links after game */
+.social-links-after-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background-color: #e8e8e0;
+    border: 1px solid #c0c0b8;
+    width: 90%;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+}
+
+.social-links-after-game p {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.social-links-after-game a {
+    text-decoration: none;
+    color: #1d1d1d;
+    margin: 5px 0;
+    padding: 3px 5px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    display: block;
+}
+
+.social-links-after-game a:hover {
+    background-color: #b4c8dc;
+    border: 1px solid #4a678d;
+    color: #000;
+}
+
+
+/* NEW: Styles for the Contact Form Window */
+.contact-form-content {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background-color: #fffaf0;
+}
+
+#contactForm label {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#contactForm input[type="text"],
+#contactForm input[type="email"],
+#contactForm textarea {
+    width: calc(100% - 10px);
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+#contactForm textarea {
+    resize: vertical;
+}
+
+.form-submit-button {
+    background-color: #e8e8e0;
+    border: 2px solid;
+    border-color: #f2f2ed #c0c0b8 #c0c0b8 #f2f2ed;
+    padding: 4px 8px;
+    margin-top: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    font-weight: normal;
+    cursor: pointer;
+    box-shadow: 2px 2px #999;
+    align-self: flex-start;
+}
+
+.form-submit-button:hover {
+    background-color: #d0d0c8;
+}
+#contactIntroPopup .window-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+#proceedToContactForm {
+  margin-top: 5px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 9px;
+  font-weight: normal;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 6px 8px;
+}
+
+/* KNOW ME WINDOW SPECIFIC STYLES */
+#knowMeWindow .know-me-text p {
+    font-size: 13.5px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.know-me-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    position: relative;
+    padding-top: 20px;
+}
+
+#cameraImg {
+    position: absolute;
+    width: 90px;
+    height: 145px;
+    display: block;
+    z-index: 2;
+    top: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#amishaRevealImg {
+    position: absolute;
+    width: 70px;
+    height: 86px;
+    object-fit: cover;
+    border: none;
+    box-shadow: none;
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+    top: 197px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+@keyframes emergeUp {
+    0% {
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        transform: translateX(-50%) translateY(-100px);
+    }
+}
+
+.amisha-reveal-img.visible {
+    animation: emergeUp 1s ease-out forwards;
+    pointer-events: auto;
+    z-index: 3;
+}
+#baghCottonsPopup .window-content .project-video {
+    width: 80%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .desktop-icons {
+        left: 10px;
+        top: 10px;
+        gap: 10px;
+    }
+
+    .icon {
+        width: 70px;
+        font-size: 0.7em;
+    }
+
+    .icon img {
+        width: 28px;
+        height: 28px;
+    }
+
+    #redButton {
+        width: 50px;
+        height: 50px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    #monitorBackButton {
+        width: 70px;
+        height: 25px;
+        bottom: 10px;
+        right: 80px; /* Adjust position if it overlaps with red button */
+    }
+
+    .window {
+        min-width: unset;
+        min-height: unset;
+        width: 95vw;
+        height: auto; /* Let content define height for smaller screens */
+    }
+}
+
+/* Zoom-out animation for the initial scene */
+@keyframes zoomOut {
+  0% {
+    transform: scale(1.80); /* Starts from the zoomed-in state */
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);   /* Zooms back to original size */
+    opacity: 1;
+  }
+}
+
+.zooming-out {
+  animation: zoomOut 1.7s ease forwards; /* Apply this class for the zoom-out */
+  transform-origin: 50% 50.25%; /* Same origin as zoom-in for consistency */
+}
+
+/* NEW: Styles for the Instruction Box */
+#instructionBox {
+  position: absolute;
+  bottom: 20px; /* Adjust as needed */
+  right: 20px;  /* Adjust as needed */
+  background-color: rgba(0, 0, 0, 0.457); /* Semi-transparent dark background */
+  padding: 10px 15px;
+  color: #d2d1d1cd; /* Neon text color */
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px; /* Adjust font size */
+  text-align: center;
+  z-index: 5; /* Make sure it's above scene1 */
+  pointer-events: none; /* Allows clicks to pass through to elements behind it */
+  animation: neonGlow 1.5s ease-in-out infinite alternate; /* Optional: subtle glow animation */
+  
+  /* Inherit fade-hidden properties initially */
+  opacity: 0;
+  visibility: hidden;
+  /* IMPORTANT: Add display here to make it block when it becomes visible.
+     We removed `display: none` from `.fade-hidden` so it needs a base display. */
+  display: block; /* Make sure it's block-level by default */
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+#instructionBox p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+
+
+/* Ensure it's responsive */
+@media (max-width: 768px) {
+  #instructionBox {
+    bottom: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    font-size: 8px;
+  }
+}

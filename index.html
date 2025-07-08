@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amisha's Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Orbitron:wght@500&family=Playfair+Display&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="scene-container">
+  <img src="images/scene1.jpg" alt="Initial Retro Desktop View" id="scene1" class="scene active" style="z-index: 2;" />
+  <img src="images/scene2.jpg" alt="Close-up of Computer Screen" id="scene2" class="scene" style="z-index: 1; display: none;" />
+  <button id="redButton" aria-label="Click to start computer"></button>
+  <div class="led-screen-overlay fade-hidden"></div>
+  <button id="monitorBackButton" class="fade-hidden" aria-label="Go back to previous scene"></button>
+
+  <div id="instructionBox" class="fade-hidden">
+    <p>Press the red button</p>
+    <p>to turn on the computer!</p>
+  </div>
+</div> <div class="desktop-icons fade-hidden">
+  <div class="icon contact-icon"><img src="images/contact-icon.png" alt="Contact Icon" /><span>contact</span></div>
+  <div class="icon projects-icon"><img src="images/projects-icon.png" alt="Projects Icon" /><span>projects</span></div>
+  <div class="icon socials-icon"><img src="images/socials-icon.png" alt="Socials Icon" /><span>socials</span></div>
+  <div class="icon know-me-icon"><img src="images/know.png" alt="Know Me Icon" /><span>know me</span></div>
+</div>
+
+<div id="projectsWindow" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">My Projects</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <div class="path-bar">C:\My Projects</div>
+    <div class="folder-grid">
+         <div class="folder" data-project-type="axisbank"><img class="folder-icon5" src="images/folder-icon5.png" alt="Axis Bank Case Study Folder" /><span>Axis Bank Case Study</span></div>
+               <div class="folder" data-project-type="rbi"><img class="folder-icon4" src="images/folder-icon4.png" alt="Reserve Bank of India Folder" /><span>Reserve Bank of India</span></div>
+      <div class="folder" data-project-type="dentsu"><img class="folder-icon2" src="images/folder-icon2.png" alt="Dentsu Campaign Projects Folder" /><span>Dentsu Campaign Projects</span></div>
+      <div class="folder" data-project-type="baghcottons"><img class="folder-icon3" src="images/folder-icon3.png" alt="Bāgh Cottons Folder" /><span>Bāgh Cottons</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="socialsWindow" class="window fade-hidden">
+  <div class="window-header">
+    <span class="window-title">My Creative Links.exe</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button>
+      <button id="socialsClose" class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content socials-game-content">
+    <div id="gameContainer">
+      <div id="character"></div>
+      <div id="block"></div>
+      <div id="ground"></div>
+      <div id="scoreDisplay">Score: 0</div>
+      <div id="gameOverScreen" class="game-overlay fade-hidden">
+          <p>GAME OVER</p>
+          <p class="intro-text-small" id="gameOverMessage"></p> <button id="restartButton" class="game-button">Restart</button>
+          <span class="intro-text-small">Press SPACE to play</span>
+          <a href="#" class="clickable-text skip-game-text" id="skipGame">Or click here to reveal social links</a>
+      </div>
+      <div id="introScreen" class="game-overlay">
+          <p>Dino Jump!</p>
+          <p class="intro-text-small">Win 30 points to reveal the links!</p>
+          <span class="intro-text-small">Press SPACE to start</span>
+          <a href="#" class="clickable-text skip-game-text" id="skipGameIntro">Or click here to reveal social links</a>
+      </div>
+    </div>
+   <div id="socialLinksContainer" class="social-links-after-game fade-hidden">
+    <p>Connect with me:</p>
+    <a href="https://www.linkedin.com/in/amishabehl/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a href="https://www.behance.net/amishabehl" target="_blank" rel="noopener noreferrer">Behance</a>
+    <a href="https://www.instagram.com/_amisha.b" target="_blank" rel="noopener noreferrer">Instagram</a>
+  </div>
+ </div>
+</div>
+
+<div id="knowMeWindow" class="window fade-hidden">
+  <div class="window-header">
+    <span class="window-title">Know Me.txt</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button>
+      <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content know-me-content">
+    <div class="know-me-text">
+        <p>Hi, I’m Amisha Behl! I'm a UX Designer passionate about crafting intuitive and engaging digital experiences, deeply rooted in user-centric design principles.</p>
+    </div>
+
+    <img id="amishaRevealImg" src="images/amisha.png" alt="Amisha's Photo" class="amisha-reveal-img">
+    <img id="cameraImg" src="images/camera.png" alt="A retro camera">
+  </div>
+</div>
+
+
+<div id="contactIntroPopup" class="window fade-hidden">
+  <div class="window-header">
+    <span class="window-title">Get in Touch!</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content" style="text-align: center; padding: 20px;">
+    <p style="font-family: 'Courier New', monospace; font-size: 14px; margin-bottom: 20px;">
+      Whether you have a question, a project offer, or just want to say hello, I’d love to hear from you.
+      Send a message, and I’ll get back to you as soon as possible:)
+    </p>
+    <button id="proceedToContactForm" class="form-submit-button">Proceed to Form</button>
+  </div>
+</div>
+
+<div id="contactFormWindow" class="window fade-hidden">
+    <div class="window-header">
+        <span class="window-title">Contact Me</span>
+        <div class="window-controls">
+            <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+        </div>
+    </div>
+    <div class="window-content contact-form-content">
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="form-submit-button">Send Message</button>
+        </form>
+    </div>
+</div>
+
+<div id="rbiPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Reserve Bank of India Project</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button id="rbiPopupClose" class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <p>My internship experience at the Reserve Bank of India in 2021 and again in 2023 helped me explore how design plays a role in financial systems used by millions of people. During my second internship, I focused on understanding how banking apps function from a user’s point of view. I carried out a comparative study of popular financial apps like Paytm, HDFC Bank, ICICI Bank, SBI, Axis Bank, and others. The goal was to find common usability issues and suggest ways to make the experience simpler, smoother, and more accessible for users</p>
+    <p>As part of the study, I created ten detailed case studies of these apps. I examined the user flow, layout, onboarding steps, and how easily someone could complete basic tasks. I reviewed the apps by stepping into the user's shoes and noting areas where things felt confusing or slow. These observations helped me recommend practical design improvements. The project strengthened my research and thinking process as a UX designer. Below is a short case study of the BHIM UPI app, which highlights some of the key insights I gathered.</p>
+    <hr style="margin: 15px 0; border-top: 1px solid #ccc;">
+    <div class="folder-grid" style="justify-content: center;">
+        <div class="folder" data-project-type="bhim-upi"> <img src="images/icon5.png" alt="Bhim UPI" /> <span>Bhim UPI</span>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div id="baghCottonsPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Bāgh Cottons Project</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <p>Bagh Cottons is a small clothing brand I started with my mom four years ago. We work with beautiful Indian fabrics like Ajrakh, Kalamkari, and cotton block prints to create everyday wear such as kurtis, tops, dresses, and coord sets. What started as a small idea between the two of us has grown into something meaningful. We now sell mostly through our online pages and take part in exhibitions across Delhi NCR. Our focus has always been on handmade, sustainable pieces that celebrate Indian craftsmanship.</p>
+    <p>As a UX designer, I decided to turn Bagh Cottons into one of my personal projects. I began looking at everything through a design lens, thinking about how people discover our brand, how they shop with us, and how they feel when they receive a package. I redesigned the logo, refreshed the overall look and feel of the brand, and started planning our website with a simple and smooth user journey in mind. I also worked closely with customers at stalls, met vendors, and had meetings with lawyers during our rebranding. These experiences taught me how important communication, trust, and empathy are in creating a good user experience.</p>
+    <p>This project helped me grow in confidence. It encouraged me to talk to more people, ask the right questions, and really understand how design fits into every part of a brand, not just online but offline too. Bagh Cottons is a mix of design, storytelling, and heart, and I’m proud to include it in my portfolio..</p>
+    <br> <video controls width="100%" height="auto" class="project-video">
+        <source src="video/bāghcottons.MOV" type="video/quicktime">
+        Your browser does not support the video tag.
+    </video>
+    </div>
+</div>
+
+<div id="axisBankPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Axis Bank Case Study</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <img src="images/axisbankproject.png" alt="Axis Bank Case Study Image" style="width:100%; height:auto;" />
+  </div>
+</div>
+
+<div id="dentsuReflectionPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Dentsu - My Reflection</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <p>During my two-month internship at Dentsu Creative, I had the opportunity to work on real client projects and gain firsthand experience in how large-scale campaigns are conceptualized and pitched. I contributed to the development of pitch presentations for brands like Maruti Suzuki, Oaken Glow, and Motorola, helping the team secure successful collaborations for upcoming advertising campaigns.</p>
+    <p>One of my key projects involved creating and refining campaign ideas for Maruti Suzuki’s Fronx. Out of the concepts I pitched, three were shortlisted by the client, with one being executed at India’s Auto Expo. Another campaign I worked on went live as part of Oaken Glow’s digital marketing strategy. I was actively involved in brainstorming sessions, collaborating closely with the copywriting team, working on creative direction, scriptwriting, and designing PowerPoint decks used for client presentations and pitches.</p>
+     <p>This experience helped me understand how ideas evolve into campaigns, and how important storytelling and clarity are when presenting concepts to clients. I gained a lot of confidence by interacting with team leads, creative directors,I also picked up practical design skills along the way — I learned to use Photoshop and improved my visual communication through real-time feedback. My time at Dentsu gave me a strong foundation in how advertising works from the inside and helped me grow both creatively and professionally.</p>
+     <p>Below are a few digital creatives that I created at dentsu</p>
+
+    <hr style="margin: 15px 0; border-top: 1px solid #ccc;">
+
+    <div class="folder-grid" style="margin-top: 15px;">
+      <div class="folder dentsu-image-icon" data-image="creative">
+        <img src="images/image-icon1.png" alt="Maruti Suzuki Celerio" />
+        <span>Maruti Suzuki Celerio Creative</span>
+      </div>
+      <div class="folder dentsu-image-icon" data-image="arcade">
+        <img src="images/image-icon2.png" alt="Maruti Suzuki Fronx" />
+        <span>Maruti Suzuki Fronx</span>
+      </div>
+      <div class="folder dentsu-image-icon" data-image="fronx">
+        <img src="images/image-icon3.png" alt="Maruti Suzuki DZIRE" />
+        <span>Maruti Suzuki Dzire</span>
+      </div>
+    </div>
+  </div>
+</div>
+ <div id="marutiCelerioPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Maruti Suzuki Celerio</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <img src="images/creative.png" alt="Maruti Suzuki Celerio Creative" style="width:100%; height:auto;" />
+  </div>
+</div>
+<div id="marutiArcadePopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Maruti Suzuki Arcade</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <img src="images/arcade.png" alt="Maruti Suzuki Arcade Creative" style="width:100%; height:auto;" />
+  </div>
+</div>
+
+<div id="marutiFronxPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">Maruti Suzuki Fronx</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <img src="images/fronx.png" alt="Maruti Suzuki Fronx Creative" style="width:100%; height:auto;" />
+  </div>
+</div>
+
+<div id="bhimUpiPopup" class="window fade-hidden">
+  <div class="window-header"><span class="window-title">BHIM UPI</span>
+    <div class="window-controls">
+      <button class="window-control-button maximize">🔎</button> <button class="window-control-button close">X</button>
+    </div>
+  </div>
+  <div class="window-content">
+    <img src="images/bhimupi.png" alt="BHIM UPI" style="width:100%; height:auto;" />
+  </div>
+</div>
+<audio id="bootSound" src="sounds/boot.m4a" preload="auto"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
