@@ -749,43 +749,29 @@ body {
   transform-origin: 50% 50.25%; /* Same origin as zoom-in for consistency */
 }
 
-/* NEW: Styles for the Instruction Box */
+
 #instructionBox {
   position: absolute;
-  bottom: 20px; /* Adjust as needed */
-  right: 20px;  /* Adjust as needed */
-  background-color: rgba(0, 0, 0, 0.457); /* Semi-transparent dark background */
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.457);
   padding: 10px 15px;
-  color: #d2d1d1cd; /* Neon text color */
+  color: #d2d1d1cd;
   font-family: 'Press Start 2P', cursive;
-  font-size: 10px; /* Adjust font size */
+  font-size: 10px;
   text-align: center;
-  z-index: 5; /* Make sure it's above scene1 */
-  pointer-events: none; /* Allows clicks to pass through to elements behind it */
-  animation: neonGlow 1.5s ease-in-out infinite alternate; /* Optional: subtle glow animation */
-  
-  /* Inherit fade-hidden properties initially */
+  z-index: 5;
+  pointer-events: none;
+  animation: neonGlow 1.5s ease-in-out infinite alternate;
+
+  /* MODIFIED: Add display: none here for initial hidden state */
   opacity: 0;
   visibility: hidden;
-  /* IMPORTANT: Add display here to make it block when it becomes visible.
-     We removed `display: none` from `.fade-hidden` so it needs a base display. */
-  display: block; /* Make sure it's block-level by default */
+  display: none; /* Make sure it's display: none when truly hidden */
   transition: opacity 0.5s ease, visibility 0s linear 0.5s;
 }
 
-#instructionBox p {
-  margin: 0;
-  line-height: 1.4;
-}
-
-
-
-/* Ensure it's responsive */
-@media (max-width: 768px) {
-  #instructionBox {
-    bottom: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    font-size: 8px;
-  }
+/* NEW RULE: Add this to make it block when it's supposed to be visible */
+#instructionBox.fade-visible {
+  display: block !important; /* Ensure it becomes visible for transition */
 }

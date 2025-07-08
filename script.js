@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const marutiCelerioPopup = document.getElementById('marutiCelerioPopup');
     const marutiArcadePopup = document.getElementById('marutiArcadePopup');
     const marutiFronxPopup = document.getElementById('marutiFronxPopup');
-    const bhimUpiPopup = document.getElementById('bhimUpiPopup'); 
+    const bhimUpiPopup = document.getElementById('bhimUpiPopup');
 
     // Desktop icons
     const projectsIcon = document.querySelector('.projects-icon');
@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const skipGameIntro = document.getElementById('skipGameIntro');
 
     let zIndexCounter = 100; // Starting z-index for windows
+
+    // NEW: Variable to hold the timeout ID for the instruction box
+    let instructionBoxTimeoutId;
 
 
     // --- Helper Functions ---
@@ -255,27 +258,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bhimUpiPopup) setupWindowControls(bhimUpiPopup);
 
 
-    // --- Event Listeners for Core Functionality ---
-
     // Instruction Box Initial Appearance Logic
-    // Hide the instruction box initially via CSS.
-    // Make it appear 10 seconds after the website opens.
     if (instructionBox) {
-        // Ensure it starts hidden (though CSS should handle this if `fade-hidden` is present on load)
-        instructionBox.classList.add('fade-hidden'); 
-        setTimeout(() => {
-            instructionBox.classList.remove('fade-hidden');
-            instructionBox.style.opacity = 1; 
-            instructionBox.style.visibility = 'visible'; // Ensure visibility is set
-        }, 5000); // 10 seconds
+        // Ensure it starts hidden by applying fade-hidden
+        instructionBox.classList.add('fade-hidden');
+        // The instruction box will appear after 5 seconds
+        instructionBoxTimeoutId = setTimeout(() => { // Store the timeout ID
+            // Set display to block first, then remove fade-hidden to trigger transition
+            instructionBox.style.display = 'block'; // Make it block before fading in
+            requestAnimationFrame(() => { // Use rAF to ensure display change is rendered before transition
+                instructionBox.classList.remove('fade-hidden');
+                instructionBox.classList.add('fade-visible'); // Use fade-visible to control appearance
+            });
+        }, 5000); // 5 seconds
     }
-
 
     // Boot Up Sequence
     redButton.addEventListener('click', () => {
         // Hide the instruction box immediately when the red button is pressed
         if (instructionBox) {
-            instructionBox.classList.add('fade-hidden'); 
+            // Check if the timeout to show the instruction box is still pending
+            if (instructionBoxTimeoutId) {
+                clearTimeout(instructionBoxTimeoutId); // Clear the timeout if it hasn't fired yet
+                instructionBoxTimeoutId = null; // Reset the ID
+                // Immediately ensure it's hidden and not just waiting for the timeout to override
+                instructionBox.style.display = 'none';
+                instructionBox.classList.remove('fade-visible'); // Remove this class to prevent it from ever showing
+                instructionBox.classList.add('fade-hidden'); // Ensure hidden class is there for consistency
+            } else {
+                // If the instruction box is already visible (timeout has fired), fade it out
+                instructionBox.classList.remove('fade-visible'); // Remove this first to ensure proper transition
+                instructionBox.classList.add('fade-hidden'); // This initiates the fade-out
+
+                // Use a named function for the event listener so it can be removed properly
+                function handleInstructionBoxTransitionEnd(event) {
+                    // Only proceed if the opacity transition specifically finished AND the box is meant to be hidden
+                    if (event.propertyName === 'opacity' && instructionBox.classList.contains('fade-hidden')) {
+                        instructionBox.style.display = 'none'; // Finally hide it
+                        // Remove the event listener to prevent it from firing again accidentally
+                        instructionBox.removeEventListener('transitionend', handleInstructionBoxTransitionEnd);
+                    }
+                }
+                instructionBox.addEventListener('transitionend', handleInstructionBoxTransitionEnd);
+            }
         }
 
         if (bootSound) {
@@ -297,37 +322,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500); // This timeout should match your zoomIn animation duration
     });
 
-    // Monitor Back Button Event Listener
-    if (backButton) {
-        backButton.addEventListener('click', () => {
-            closeAllOpenWindows();
+   // Monitor Back Button Event Listener
+if (backButton) {
+    backButton.addEventListener('click', () => {
+        closeAllOpenWindows();
 
-            desktopIcons.classList.add('fade-hidden');
-            ledScreenOverlay.classList.add('fade-hidden');
-            backButton.classList.add('fade-hidden');
+        desktopIcons.classList.add('fade-hidden');
+        ledScreenOverlay.classList.add('fade-hidden');
+        backButton.classList.add('fade-hidden');
 
-            scene2.style.display = 'none';
-            scene1.style.display = 'block';
-            scene1.classList.add('active');
-            scene1.classList.remove('zooming');
-            scene1.classList.add('zooming-out');
+        scene2.style.display = 'none';
+        scene1.style.display = 'block';
+        scene1.classList.add('active'); // Ensure scene1 is active to display it
+        scene1.classList.remove('zooming');
+        scene1.classList.add('zooming-out');
 
-            if (bootSound) {
-                bootSound.currentTime = 0;
-                bootSound.play();
-            }
+        if (bootSound) {
+            bootSound.currentTime = 0;
+            bootSound.play();
+        }
 
-            // After the zoom-out animation is complete, reset scene1
-            setTimeout(() => {
-                scene1.classList.remove('zooming-out');
-                scene1.classList.remove('active');
-                redButton.classList.remove('fade-hidden');
-                // Removed: Code to show instruction box here
-            }, 1700); // This timeout should match your zoomOut animation duration
-        });
-    } else {
-        console.error("Error: The 'monitorBackButton' element was not found.");
-    }
+        // After the zoom-out animation is complete, reset scene1
+        setTimeout(() => {
+            scene1.classList.remove('zooming-out');
+            // scene1.classList.remove('active'); // <<< THIS LINE SHOULD BE REMOVED!
+                                                // If you remove 'active', scene1 will become display: none
+                                                // according to your CSS: .scene { display: none; } .scene.active { display: block; }
+                                                // You want scene1 to remain visible to show the red button.
+            redButton.classList.remove('fade-hidden');
+            // Removed: Code to show instruction box here (This is an intentional UX choice by you)
+        }, 1700); // This timeout should match your zoomOut animation duration
+    });
+} else {
+    console.error("Error: The 'monitorBackButton' element was not found.");
+}
 
     // Desktop Icon Clicks
     projectsIcon.addEventListener('click', () => {
