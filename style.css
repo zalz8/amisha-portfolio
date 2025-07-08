@@ -72,6 +72,7 @@ body {
   cursor: pointer;
   z-index: 4;
   transition: opacity 0.5s ease, visibility 0.5s ease;
+  display: none; /* Ensure it's hidden by default */
 }
 
 /* --- CRITICAL CSS ADJUSTMENTS FOR FADE CLASSES --- */
@@ -81,11 +82,6 @@ body {
   pointer-events: none !important;
   /* When hiding, transition opacity and then hide visibility after the transition */
   transition: opacity 0.5s ease, visibility 0s linear 0.5s;
-  /* IMPORTANT: Only set display: none on the *next tick* via JS,
-     or allow JS to explicitly set display: none when *fully* hidden.
-     Removing display: none from here means you might need to set it on elements
-     that are *initially* hidden and then shown.
-     For instructionBox, it starts with fade-hidden, so display: none should NOT be here. */
 }
 
 .fade-visible {
@@ -94,9 +90,6 @@ body {
   pointer-events: auto !important;
   /* When showing, transition opacity immediately */
   transition: opacity 0.5s ease;
-  /* IMPORTANT: You might need to add `display: block !important;` here if the element
-     starts with `display: none` and needs to be revealed. For `#instructionBox`,
-     we'll manage its initial display state directly below. */
 }
 
 
@@ -109,8 +102,8 @@ body {
   display: flex; /* Keep this */
   gap: 30px;
   z-index: 3;
-  /* desktop-icons starts with `fade-hidden` in HTML, so it will be hidden initially.
-     When shown, JS will remove `fade-hidden` and likely add `fade-visible` (if used). */
+  /* ADD THIS LINE: Ensure it's hidden by default */
+  display: none; /* Hidden by default */
 }
 
 .icon {
@@ -165,7 +158,8 @@ body {
     0 0 20px rgba(0, 255, 255, 0.2),
     0 0 40px rgba(255, 0, 0, 0.2);
   animation: flicker 0.15s infinite alternate;
-  /* Starts with fade-hidden in HTML, so will be hidden initially */
+  /* ADD THIS LINE: Ensure it's hidden by default */
+  display: none; /* Hidden by default */
 }
 
 @keyframes flicker {
@@ -533,11 +527,6 @@ body {
     color: #333;
 }
 
-.social-links-after-game p {
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
 .social-links-after-game a {
     text-decoration: none;
     color: #1d1d1d;
@@ -630,7 +619,9 @@ body {
 #knowMeWindow .know-me-text p {
     font-size: 13.5px;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    margin-top: 0px;
+
 }
 
 .know-me-content {
@@ -640,7 +631,7 @@ body {
     justify-content: flex-start;
     text-align: center;
     position: relative;
-    padding-top: 20px;
+    padding-top: 10px;
 }
 
 #cameraImg {
@@ -649,7 +640,7 @@ body {
     height: 145px;
     display: block;
     z-index: 2;
-    top: 180px;
+    top: 190px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -664,7 +655,7 @@ body {
     opacity: 1;
     z-index: 1;
     pointer-events: none;
-    top: 197px;
+    top: 210px;
     left: 50%;
     transform: translateX(-50%);
 }

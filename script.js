@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let zIndexCounter = 100; // Starting z-index for windows
 
-    // NEW: Variable to hold the timeout ID for the instruction box
+    // Variable to hold the timeout ID for the instruction box
     let instructionBoxTimeoutId;
 
 
@@ -181,6 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 windowElement.classList.add('fade-hidden');
                 windowElement.classList.remove('active');
 
+                // Explicitly set display to 'none' after transition (if desired for space)
+                // For windows, we keep them as 'flex' during transition then back to 'none'
+                // And .window CSS initially sets display: none which is then overridden by .active
+
                 if (windowElement.id === 'socialsWindow') {
                     resetGame();
                 }
@@ -226,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         closeAllOpenWindows();
         windowElement.classList.remove('fade-hidden');
-        windowElement.classList.add('active');
+        windowElement.classList.add('active'); // This class makes it display: flex/block and sets opacity
         windowElement.style.zIndex = ++zIndexCounter;
 
         if (windowElement === knowMeWindow) {
@@ -316,6 +320,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             scene2.style.display = 'block';
 
+            // Set display to block/flex first, then remove fade-hidden to trigger fade-in
+            ledScreenOverlay.style.display = 'block';
+            desktopIcons.style.display = 'flex';
+            backButton.style.display = 'block';
+
+            // Now remove the fade-hidden class to start the opacity transition
             ledScreenOverlay.classList.remove('fade-hidden');
             desktopIcons.classList.remove('fade-hidden');
             backButton.classList.remove('fade-hidden');
@@ -327,30 +337,34 @@ if (backButton) {
     backButton.addEventListener('click', () => {
         closeAllOpenWindows();
 
+        // 1. Start fade-out effect for opacity (0.5s) and visibility (after 0.5s)
         desktopIcons.classList.add('fade-hidden');
         ledScreenOverlay.classList.add('fade-hidden');
         backButton.classList.add('fade-hidden');
 
-        scene2.style.display = 'none';
-        scene1.style.display = 'block';
+        // 2. Immediately set display to 'none' for instant hiding,
+        // so they don't occupy space or flash even if invisible.
+        // This is crucial for elements that should completely vanish.
+        desktopIcons.style.display = 'none';
+        ledScreenOverlay.style.display = 'none';
+        backButton.style.display = 'none';
+
+        scene2.style.display = 'none'; // Hide scene2 immediately
+        scene1.style.display = 'block'; // Show scene1 immediately
         scene1.classList.add('active'); // Ensure scene1 is active to display it
         scene1.classList.remove('zooming');
-        scene1.classList.add('zooming-out');
+        scene1.classList.add('zooming-out'); // Start zoom-out animation on scene1
 
         if (bootSound) {
             bootSound.currentTime = 0;
             bootSound.play();
         }
 
-        // After the zoom-out animation is complete, reset scene1
+        // This setTimeout is only needed to remove the 'zooming-out' class
+        // and make the red button visible after scene1's animation completes.
         setTimeout(() => {
             scene1.classList.remove('zooming-out');
-            // scene1.classList.remove('active'); // <<< THIS LINE SHOULD BE REMOVED!
-                                                // If you remove 'active', scene1 will become display: none
-                                                // according to your CSS: .scene { display: none; } .scene.active { display: block; }
-                                                // You want scene1 to remain visible to show the red button.
-            redButton.classList.remove('fade-hidden');
-            // Removed: Code to show instruction box here (This is an intentional UX choice by you)
+            redButton.classList.remove('fade-hidden'); // Red button fades back in
         }, 1700); // This timeout should match your zoomOut animation duration
     });
 } else {
@@ -464,7 +478,7 @@ if (backButton) {
                 } else if (dentsuReflectionPopup && !dentsuReflectionPopup.classList.contains('fade-hidden')) {
                     parentToClose = dentsuReflectionPopup;
                 }
-                
+
                 if (parentToClose) {
                     parentToClose.classList.add('fade-hidden');
                 }
@@ -525,7 +539,7 @@ if (backButton) {
 
     const scoreToWin = 30;
     let blockSpeed = 6;
-    
+
     function startGame() {
         if (gameStarted) return;
         gameStarted = true;
