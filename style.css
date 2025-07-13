@@ -78,9 +78,9 @@ body {
   /* !!! FINE-TUNE THESE PERCENTAGE VALUES !!! */
   /* These percentages are relative to the .scene-one-interactive-area's size */
   top: 65%;   /* Initial estimate, adjust based on visual alignment */
-  left: 53%;  /* Initial estimate, adjust based on visual alignment */
+  left: 50%;  /* Initial estimate, adjust based on visual alignment */
   width: 27%;  /* Initial estimate, adjust for desired button size relative to image */
-  height: 20%; /* Initial estimate, adjust for desired button size relative to image */
+  height: 18%; /* Initial estimate, adjust for desired button size relative to image */
   background-color: transparent; /* Keep transparent for final use */
   border: none; /* Keep none for final use */
   border-radius: 50%;
@@ -94,7 +94,7 @@ body {
   position: absolute;
   top: 84.8%;
   left: 58.8%;
-  width: 100px;
+  width: 400px;
   height: 100px;
   background-color: transparent;
   border: none;

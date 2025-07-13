@@ -1,46 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selections ---
-    // Scene and Boot elements
     const redButton = document.getElementById('redButton');
-    const scene1 = document.getElementById('scene1'); // Keep for hiding/showing the img itself
+    const scene1 = document.getElementById('scene1');
     const scene2 = document.getElementById('scene2');
     const ledScreenOverlay = document.querySelector('.led-screen-overlay');
     const desktopIcons = document.querySelector('.desktop-icons');
     const bootSound = document.getElementById('bootSound');
     const backButton = document.getElementById('monitorBackButton');
-    const instructionBox = document.getElementById('instructionBox'); // Instruction Box
-
-    // NEW SELECTION: The wrapper for scene1
+    const instructionBox = document.getElementById('instructionBox');
     const sceneOneInteractiveArea = document.querySelector('.scene-one-interactive-area');
 
-    // Windows
     const projectsWindow = document.getElementById('projectsWindow');
     const socialsWindow = document.getElementById('socialsWindow');
     const contactIntroPopup = document.getElementById('contactIntroPopup');
-    const contactFormWindow = document.getElementById('contactFormWindow');
+    const contactFormWindow = document.getElementById('contactFormWindow'); // This should be the ID of your window container for the form
     const knowMeWindow = document.getElementById('knowMeWindow');
     const marutiCelerioPopup = document.getElementById('marutiCelerioPopup');
     const marutiArcadePopup = document.getElementById('marutiArcadePopup');
     const marutiFronxPopup = document.getElementById('marutiFronxPopup');
     const bhimUpiPopup = document.getElementById('bhimUpiPopup');
 
-    // Desktop icons
     const projectsIcon = document.querySelector('.projects-icon');
     const socialsIcon = document.querySelector('.socials-icon');
     const contactIcon = document.querySelector('.contact-icon');
     const knowMeIcon = document.querySelector('.know-me-icon');
 
-    // Project Specific Popups (Folders within Projects)
     const rbiPopup = document.getElementById('rbiPopup');
     const baghCottonsPopup = document.getElementById('baghCottonsPopup');
     const axisBankPopup = document.getElementById('axisBankPopup');
     const dentsuReflectionPopup = document.getElementById('dentsuReflectionPopup');
 
-    // Contact Form related
     const proceedToContactFormButton = document.getElementById('proceedToContactForm');
-    const contactForm = document.getElementById('contactForm');
+    const contactForm = document.getElementById('contactForm'); // This is the form element itself
 
-    // Dino Game elements
     const character = document.getElementById('character');
     const block = document.getElementById('block');
     const gameContainer = document.getElementById('gameContainer');
@@ -53,52 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const skipGame = document.getElementById('skipGame');
     const skipGameIntro = document.getElementById('skipGameIntro');
 
-    let zIndexCounter = 100; // Starting z-index for windows
-
-    // Variable to hold the timeout ID for the instruction box
+    let zIndexCounter = 100;
     let instructionBoxTimeoutId;
 
-
     // --- Helper Functions ---
-
-    // All windows for initial setup (hiding them)
     const allWindows = document.querySelectorAll('.window');
     allWindows.forEach(win => win.classList.add('fade-hidden'));
 
-    // Preload images for smoother transitions
     const imageUrlsToPreload = [
-        'images/scene1.jpg',
-        'images/scene2.jpg',
-        'images/dino.png',
-        'images/cactus1.png',
-        'images/amisha.png',
-        'images/camera.png'
+        'images/scene1.jpg', 'images/scene2.jpg', 'images/dino.png',
+        'images/cactus1.png', 'images/amisha.png', 'images/camera.png'
     ];
-
     imageUrlsToPreload.forEach(url => {
         const img = new Image();
         img.src = url;
     });
 
-
-    /**
-     * Closes all currently visible window pop-ups by adding the 'fade-hidden' class.
-     * This is crucial for managing overlapping windows.
-     */
     function closeAllOpenWindows() {
         document.querySelectorAll('.window:not(.fade-hidden)').forEach(window => {
             window.classList.add('fade-hidden');
-            window.classList.remove('active'); // Ensure 'active' class is removed
-
-            // Reset any specific animations when closing a window
+            window.classList.remove('active');
             if (window.id === 'socialsWindow') {
                 resetGame(); // Ensure game resets when socials window is closed
             }
-            // Reset for Know Me window animation
             if (window.id === 'knowMeWindow') {
                 const amishaRevealImg = document.getElementById('amishaRevealImg');
                 if (amishaRevealImg) {
-                    amishaRevealImg.classList.remove('visible'); // Remove animation class to reset its state
+                    amishaRevealImg.classList.remove('visible');
                 }
             }
         });
@@ -108,10 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Generic function to make any window element draggable.
-     * @param {HTMLElement} element - The window element to make draggable.
-     */
     function makeDraggable(element) {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         const header = element.querySelector('.window-header');
@@ -129,8 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             pos4 = e.clientY;
             document.onmouseup = closeDragElement;
             document.onmousemove = elementDrag;
-
-            // Bring the clicked window to the front
             element.style.zIndex = ++zIndexCounter;
         }
 
@@ -145,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let newTop = element.offsetTop - pos2;
             let newLeft = element.offsetLeft - pos1;
 
-            // Boundary checks to keep window within parent (viewport)
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             const elementRect = element.getBoundingClientRect();
@@ -165,11 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Sets up close and maximize controls for a given window element.
-     * Also applies draggable functionality.
-     * @param {HTMLElement} windowElement - The window element (div with class 'window').
-     */
     function setupWindowControls(windowElement) {
         if (!windowElement) {
             console.warn("setupWindowControls called with a null or undefined element.");
@@ -183,11 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeButton.addEventListener('click', () => {
                 windowElement.classList.add('fade-hidden');
                 windowElement.classList.remove('active');
-
-                // Explicitly set display to 'none' after transition (if desired for space)
-                // For windows, we keep them as 'flex' during transition then back to 'none'
-                // And .window CSS initially sets display: none which is then overridden by .active
-
                 if (windowElement.id === 'socialsWindow') {
                     resetGame();
                 }
@@ -222,10 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Opens a given window element by removing 'fade-hidden' class and setting z-index.
-     * @param {HTMLElement} windowElement - The window to open.
-     */
     function openWindow(windowElement) {
         if (!windowElement) {
             console.error("Attempted to open a null or undefined windowElement.");
@@ -233,14 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         closeAllOpenWindows();
         windowElement.classList.remove('fade-hidden');
-        windowElement.classList.add('active'); // This class makes it display: flex/block and sets opacity
+        windowElement.classList.add('active');
         windowElement.style.zIndex = ++zIndexCounter;
 
         if (windowElement === knowMeWindow) {
             const amishaRevealImg = document.getElementById('amishaRevealImg');
             if (amishaRevealImg) {
                 amishaRevealImg.classList.remove('visible');
-                // Small delay to ensure the image resets before re-animating if opened consecutively
                 setTimeout(() => {
                     amishaRevealImg.classList.add('visible');
                 }, 100);
@@ -248,11 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // --- Apply Window Controls to All Windows ---
     if (projectsWindow) setupWindowControls(projectsWindow);
     if (socialsWindow) setupWindowControls(socialsWindow);
-    if (contactFormWindow) setupWindowControls(contactFormWindow);
+    const contactFormWindowElement = document.getElementById('contactFormWindow');
+    if (contactFormWindowElement) setupWindowControls(contactFormWindowElement);
     if (contactIntroPopup) setupWindowControls(contactIntroPopup);
     if (rbiPopup) setupWindowControls(rbiPopup);
     if (baghCottonsPopup) setupWindowControls(baghCottonsPopup);
@@ -267,42 +218,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Instruction Box Initial Appearance Logic
     if (instructionBox) {
-        // Ensure it starts hidden by applying fade-hidden
         instructionBox.classList.add('fade-hidden');
-        // The instruction box will appear after 5 seconds
-        instructionBoxTimeoutId = setTimeout(() => { // Store the timeout ID
-            // Set display to block first, then remove fade-hidden to trigger transition
-            instructionBox.style.display = 'block'; // Make it block before fading in
-            requestAnimationFrame(() => { // Use rAF to ensure display change is rendered before transition
+        instructionBoxTimeoutId = setTimeout(() => {
+            instructionBox.style.display = 'block';
+            requestAnimationFrame(() => {
                 instructionBox.classList.remove('fade-hidden');
-                instructionBox.classList.add('fade-visible'); // Use fade-visible to control appearance
+                instructionBox.classList.add('fade-visible');
             });
-        }, 5000); // 5 seconds
+        }, 5000);
     }
 
     // Boot Up Sequence
     redButton.addEventListener('click', () => {
-        // Hide the instruction box immediately when the red button is pressed
         if (instructionBox) {
-            // Check if the timeout to show the instruction box is still pending
             if (instructionBoxTimeoutId) {
-                clearTimeout(instructionBoxTimeoutId); // Clear the timeout if it hasn't fired yet
-                instructionBoxTimeoutId = null; // Reset the ID
-                // Immediately ensure it's hidden and not just waiting for the timeout to override
+                clearTimeout(instructionBoxTimeoutId);
+                instructionBoxTimeoutId = null;
                 instructionBox.style.display = 'none';
-                instructionBox.classList.remove('fade-visible'); // Remove this class to prevent it from ever showing
-                instructionBox.classList.add('fade-hidden'); // Ensure hidden class is there for consistency
+                instructionBox.classList.remove('fade-visible');
+                instructionBox.classList.add('fade-hidden');
             } else {
-                // If the instruction box is already visible (timeout has fired), fade it out
-                instructionBox.classList.remove('fade-visible'); // Remove this first to ensure proper transition
-                instructionBox.classList.add('fade-hidden'); // This initiates the fade-out
+                instructionBox.classList.remove('fade-visible');
+                instructionBox.classList.add('fade-hidden');
 
-                // Use a named function for the event listener so it can be removed properly
                 function handleInstructionBoxTransitionEnd(event) {
-                    // Only proceed if the opacity transition specifically finished AND the box is meant to be hidden
                     if (event.propertyName === 'opacity' && instructionBox.classList.contains('fade-hidden')) {
-                        instructionBox.style.display = 'none'; // Finally hide it
-                        // Remove the event listener to prevent it from firing again accidentally
+                        instructionBox.style.display = 'none';
                         instructionBox.removeEventListener('transitionend', handleInstructionBoxTransitionEnd);
                     }
                 }
@@ -315,90 +256,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         redButton.classList.add('fade-hidden');
-        // APPLY ZOOMING TO THE NEW WRAPPER
         sceneOneInteractiveArea.classList.add('zooming');
 
         setTimeout(() => {
-            // Hide the wrapper for scene1 after zoom completes
             sceneOneInteractiveArea.style.display = 'none';
-            sceneOneInteractiveArea.classList.remove('zooming', 'active'); // Remove active from wrapper
+            sceneOneInteractiveArea.classList.remove('zooming', 'active');
+            scene1.classList.remove('active');
+            scene1.style.display = 'none';
 
-            // Ensure scene1 image itself is also hidden/inactive if it was active
-            scene1.classList.remove('active'); // Remove active from the image itself
-            scene1.style.display = 'none'; // Ensure the image itself is hidden
-
-            // Show scene2
             scene2.style.display = 'block';
-            scene2.classList.add('active'); // Mark scene2 as active
+            scene2.classList.add('active');
 
-            // Set display to block/flex first, then remove fade-hidden to trigger fade-in
             ledScreenOverlay.style.display = 'block';
             desktopIcons.style.display = 'flex';
             backButton.style.display = 'block';
 
-            // Now remove the fade-hidden class to start the opacity transition
             ledScreenOverlay.classList.remove('fade-hidden');
             desktopIcons.classList.remove('fade-hidden');
             backButton.classList.remove('fade-hidden');
-        }, 1500); // This timeout should match your zoomIn animation duration
+        }, 1500);
     });
 
-   // Monitor Back Button Event Listener
-if (backButton) {
-    backButton.addEventListener('click', () => {
-        closeAllOpenWindows();
+    // Monitor Back Button Event Listener
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            closeAllOpenWindows();
 
-        // 1. Start fade-out effect for opacity (0.5s) and visibility (after 0.5s)
-        desktopIcons.classList.add('fade-hidden');
-        ledScreenOverlay.classList.add('fade-hidden');
-        backButton.classList.add('fade-hidden');
+            desktopIcons.classList.add('fade-hidden');
+            ledScreenOverlay.classList.add('fade-hidden');
+            backButton.classList.add('fade-hidden');
 
-        // 2. Immediately set display to 'none' for instant hiding,
-        // so they don't occupy space or flash even if invisible.
-        // This is crucial for elements that should completely vanish.
-        desktopIcons.style.display = 'none';
-        ledScreenOverlay.style.display = 'none';
-        backButton.style.display = 'none';
+            desktopIcons.style.display = 'none';
+            ledScreenOverlay.style.display = 'none';
+            backButton.style.display = 'none';
 
-        scene2.style.display = 'none'; // Hide scene2 immediately
-        scene2.classList.remove('active'); // Remove active from scene2
+            scene2.style.display = 'none';
+            scene2.classList.remove('active');
 
-        // SHOW THE WRAPPER FOR SCENE1 AND APPLY ZOOMING-OUT
-        sceneOneInteractiveArea.style.display = 'block';
-        sceneOneInteractiveArea.classList.add('active'); // Mark wrapper active
-        sceneOneInteractiveArea.classList.remove('zooming'); // Ensure zooming is removed before zooming-out
-        sceneOneInteractiveArea.classList.add('zooming-out');
+            sceneOneInteractiveArea.style.display = 'block';
+            sceneOneInteractiveArea.classList.add('active');
+            sceneOneInteractiveArea.classList.remove('zooming');
+            sceneOneInteractiveArea.classList.add('zooming-out');
 
-        // Also ensure scene1 image inside the wrapper is shown
-        scene1.style.display = 'block';
-        scene1.classList.add('active');
+            scene1.style.display = 'block';
+            scene1.classList.add('active');
 
-        if (bootSound) {
-            bootSound.currentTime = 0;
-            bootSound.play();
-        }
+            if (bootSound) {
+                bootSound.currentTime = 0;
+                bootSound.play();
+            }
 
-        // This setTimeout is only needed to remove the 'zooming-out' class
-        // and make the red button visible after scene1's animation completes.
-        setTimeout(() => {
-            // Remove zooming-out from the wrapper
-            sceneOneInteractiveArea.classList.remove('zooming-out');
-            redButton.classList.remove('fade-hidden'); // Red button fades back in
-        }, 1700); // This timeout should match your zoomOut animation duration
-    });
-} else {
-    console.error("Error: The 'monitorBackButton' element was not found.");
-}
+            setTimeout(() => {
+                sceneOneInteractiveArea.classList.remove('zooming-out');
+                redButton.classList.remove('fade-hidden');
+            }, 1700);
+        });
+    } else {
+        console.error("Error: The 'monitorBackButton' element was not found.");
+    }
 
     // Desktop Icon Clicks
     projectsIcon.addEventListener('click', () => {
         openWindow(projectsWindow);
     });
 
+    // Socials Icon Click - Wait for TransitionEnd
     socialsIcon.addEventListener('click', () => {
         openWindow(socialsWindow);
-        resetGame(); // Ensure game resets when socials window is opened
+
+        const handleSocialsWindowTransitionEnd = (event) => {
+            if (event.propertyName === 'opacity' && socialsWindow.classList.contains('active')) {
+                socialsWindow.removeEventListener('transitionend', handleSocialsWindowTransitionEnd);
+                console.log("Socials Window transition ended. Resetting game.");
+                resetGame();
+            }
+        };
+
+        socialsWindow.addEventListener('transitionend', handleSocialsWindowTransitionEnd);
+
+        // Fallback timeout in case transitionend doesn't fire reliably
+        setTimeout(() => {
+            if (!gameStarted && !socialsWindow.classList.contains('fade-hidden')) {
+                console.warn("TransitionEnd fallback triggered. Resetting game.");
+                socialsWindow.removeEventListener('transitionend', handleSocialsWindowTransitionEnd);
+                resetGame();
+            }
+        }, 700); // This timeout should be slightly longer than your CSS transition duration
     });
+
 
     // Know Me Icon Click
     knowMeIcon.addEventListener('click', () => {
@@ -414,7 +359,12 @@ if (backButton) {
         proceedToContactFormButton.addEventListener('click', () => {
             contactIntroPopup.classList.add('fade-hidden');
             setTimeout(() => {
-                openWindow(contactFormWindow);
+                const actualContactFormWindow = document.getElementById('contactFormWindow');
+                if (actualContactFormWindow) {
+                    openWindow(actualContactFormWindow);
+                } else {
+                    console.error("Contact Form Window element not found with ID 'contactFormWindow'");
+                }
             }, 300);
         });
     }
@@ -436,24 +386,22 @@ if (backButton) {
             alert('Thank you for your message, ' + name + '! I will get back to you soon.');
 
             contactForm.reset();
-            contactFormWindow.classList.add('fade-hidden');
+            const actualContactFormWindow = document.getElementById('contactFormWindow');
+            if (actualContactFormWindow) {
+                actualContactFormWindow.classList.add('fade-hidden');
+            }
         });
     }
-
 
     // Projects Window Folder Navigation AND Dentsu Image Folder Navigation
     const projectsFolders = projectsWindow.querySelectorAll('.folder');
     const dentsuImageFolders = dentsuReflectionPopup.querySelectorAll('.dentsu-image-icon');
-    // Get the Bhim UPI folder specifically from the RBI popup
     const rbiBhimUpiFolder = rbiPopup ? rbiPopup.querySelector('.folder[data-project-type="bhim-upi"]') : null;
 
-
-    // Combine all relevant folders/icons for click handling
     const allProjectAndDentsuFolders = [...projectsFolders, ...dentsuImageFolders];
-    if (rbiBhimUpiFolder) { // Add the BHIM UPI folder only if it exists
+    if (rbiBhimUpiFolder) {
         allProjectAndDentsuFolders.push(rbiBhimUpiFolder);
     }
-
 
     allProjectAndDentsuFolders.forEach(folder => {
         folder.addEventListener('click', (e) => {
@@ -462,33 +410,18 @@ if (backButton) {
 
             let targetPopup = null;
 
-            // --- Phase 1: Handle clicks on main project folders and internal RBI folder ---
             if (projectType) {
                 switch (projectType) {
-                    case 'dentsu':
-                        targetPopup = dentsuReflectionPopup;
-                        break;
-                    case 'baghcottons':
-                        targetPopup = baghCottonsPopup;
-                        break;
-                    case 'rbi':
-                        targetPopup = rbiPopup;
-                        break;
-                    case 'axisbank':
-                        targetPopup = axisBankPopup;
-                        break;
-                    case 'bhim-upi':
-                        targetPopup = bhimUpiPopup;
-                        break;
-                    default:
-                        console.log(`Unhandled project type: ${projectType}`);
-                        break;
+                    case 'dentsu': targetPopup = dentsuReflectionPopup; break;
+                    case 'baghcottons': targetPopup = baghCottonsPopup; break;
+                    case 'rbi': targetPopup = rbiPopup; break;
+                    case 'axisbank': targetPopup = axisBankPopup; break;
+                    case 'bhim-upi': targetPopup = bhimUpiPopup; break;
+                    default: console.log(`Unhandled project type: ${projectType}`); break;
                 }
             }
 
-            // If a main project window or the specific BHIM UPI image from RBI is clicked
             if (targetPopup) {
-                // Determine which parent window to close (Projects or RBI)
                 let parentToClose = null;
                 if (projectsWindow && !projectsWindow.classList.contains('fade-hidden')) {
                     parentToClose = projectsWindow;
@@ -504,34 +437,22 @@ if (backButton) {
 
                 setTimeout(() => {
                     openWindow(targetPopup);
-                }, 300); // Small delay for smooth transition
+                }, 300);
                 return;
             }
 
-
-            // --- Phase 2: Handle clicks on Dentsu image icons (kept separate for clarity) ---
             if (imageType) {
                 switch (imageType) {
-                    case 'creative':
-                        targetPopup = marutiCelerioPopup;
-                        break;
-                    case 'arcade':
-                        targetPopup = marutiArcadePopup;
-                        break;
-                    case 'fronx':
-                        targetPopup = marutiFronxPopup;
-                        break;
-                    default:
-                        console.log(`Unhandled Dentsu image type: ${imageType}`);
-                        return;
+                    case 'creative': targetPopup = marutiCelerioPopup; break;
+                    case 'arcade': targetPopup = marutiArcadePopup; break;
+                    case 'fronx': targetPopup = marutiFronxPopup; break;
+                    default: console.log(`Unhandled Dentsu image type: ${imageType}`); return;
                 }
 
                 if (targetPopup) {
-                    // Close the Dentsu Reflection Popup if it's open
                     if (dentsuReflectionPopup && !dentsuReflectionPopup.classList.contains('fade-hidden')) {
                         dentsuReflectionPopup.classList.add('fade-hidden');
                     }
-                    // Close the main Projects Window if it's somehow still open (unlikely but good for robustness)
                     if (projectsWindow && !projectsWindow.classList.contains('fade-hidden')) {
                         projectsWindow.classList.add('fade-hidden');
                     }
@@ -545,52 +466,68 @@ if (backButton) {
     });
 
 
-    // --- Socials Window Dino Game Logic ---
+    // --- Socials Window Dino Game Logic (Frame-rate independent) ---
     let score = 0;
-    let gameInterval;
-    let blockInterval;
     let isJumping = false;
     let isGameOver = false;
     let gameStarted = false;
+    let verticalVelocity = 0; // Current vertical speed in pixels per second
+    let firstCollisionCheckDelay = false; // Flag to delay the first collision check
 
-    // Responsive Game Variables
-    let jumpForcePixels;
-    let gravityPixels;
-    let characterBaseBottom;
-    let blockStartRight;
-    let blockSpeedPixels;
+    // Frame-rate independent timing
+    let lastFrameTime = 0; // Will store the timestamp of the last frame
 
-    const scoreToWin = 30; // Target score to win remains the same
-    const baseGameWidth = 500; // Original optimal width of your game container
-    const baseGameHeight = 200; // Original optimal height of your game container
+    // Fixed game physics values (these will not change based on window size)
+    // Adjusted values for a more balanced jump arc:
+    const JUMP_FORCE_BASE = 400; // Initial upward velocity in pixels per second
+    const GRAVITY_ACCELERATION = 1200; // Downward acceleration in pixels per second squared
+    let BLOCK_SPEED_PER_SECOND = 300; // Cactus speed in pixels per second
+    const BLOCK_START_RIGHT_POSITION = -200; // Much further off-screen to the right
 
-    // Function to update game variables based on current container size
+    // Base dimensions for the internal game logic
+    const CHARACTER_WIDTH = 40;
+    const CHARACTER_HEIGHT = 40;
+    const BLOCK_WIDTH = 30;
+    const BLOCK_HEIGHT = 40;
+
+    const scoreToWin = 30;
+    const baseGameWidth = 500;
+    const baseGameHeight = 200;
+
+
+    // REVISED: updateGameDimensions() - now applies CSS scale to the gameContainer
     function updateGameDimensions() {
-        const gameContainerHeight = gameContainer.offsetHeight;
-        const gameContainerWidth = gameContainer.offsetWidth;
+        const currentContainerWidth = gameContainer.offsetWidth;
+        const currentContainerHeight = gameContainer.offsetHeight;
 
-        const scaleFactor = gameContainerWidth / baseGameWidth;
+        if (currentContainerWidth === 0 || currentContainerHeight === 0) {
+            console.warn("Game container has zero dimensions. Cannot apply scale.");
+            // Set base dimensions if container is invisible, so elements still have size
+            character.style.width = `${CHARACTER_WIDTH}px`;
+            character.style.height = `${CHARACTER_HEIGHT}px`;
+            block.style.width = `${BLOCK_WIDTH}px`;
+            block.style.height = `${BLOCK_HEIGHT}px`;
+            return false;
+        }
 
-        // Apply scale factor to all pixel-based game variables
-        jumpForcePixels = 12 * scaleFactor;
-        gravityPixels = 0.5 * scaleFactor;
-        blockSpeedPixels = 6 * scaleFactor;
+        const scale = Math.min(currentContainerWidth / baseGameWidth, currentContainerHeight / baseGameHeight);
 
-        // Initial positions should also scale
-        characterBaseBottom = 0; // Character always starts at the bottom
-        blockStartRight = -30 * scaleFactor; // Block starts off-screen right
+        gameContainer.style.transform = `scale(${scale})`;
+        gameContainer.style.transformOrigin = 'center';
 
-        // Optional: Scale character/block CSS dimensions if they are fixed in CSS
-        // Ensure character and block images scale appropriately with the container
-        character.style.width = `${40 * scaleFactor}px`;
-        character.style.height = `${40 * scaleFactor}px`;
-        block.style.width = `${30 * scaleFactor}px`;
-        block.style.height = `${40 * scaleFactor}px`;
+        console.log(`updateGameDimensions called. Container width: ${currentContainerWidth}, Scale applied: ${scale.toFixed(2)}`);
+        return true;
     }
 
 
     function startGame() {
         if (gameStarted) return;
+
+        if (!updateGameDimensions()) {
+            console.error("Game container not ready. Cannot start game.");
+            return;
+        }
+
         gameStarted = true;
         isGameOver = false;
         score = 0;
@@ -599,72 +536,108 @@ if (backButton) {
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.add('fade-hidden');
 
-        // Reset positions using the calculated scaled values
-        character.style.bottom = `${characterBaseBottom}px`;
-        block.style.right = `${blockStartRight}px`;
+        character.style.bottom = `0px`;
+        block.style.right = `${BLOCK_START_RIGHT_POSITION}px`;
+        
+        character.style.width = `${CHARACTER_WIDTH}px`;
+        character.style.height = `${CHARACTER_HEIGHT}px`;
+        block.style.width = `${BLOCK_WIDTH}px`;
+        block.style.height = `${BLOCK_HEIGHT}px`;
+
         character.style.transition = 'none';
 
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
+        BLOCK_SPEED_PER_SECOND = 300; // Ensure this is reset to the initial speed
 
-        // Update dimensions before starting the game
-        updateGameDimensions();
+        firstCollisionCheckDelay = true;
+        setTimeout(() => {
+            firstCollisionCheckDelay = false;
+            console.log("Collision check enabled.");
+        }, 200);
 
-        gameInterval = setInterval(updateGame, 20);
-        blockInterval = setInterval(moveBlock, 5);
+        lastFrameTime = performance.now(); // Initialize lastFrameTime for the first loop
+        requestAnimationFrame(gameLoop); // Start the main game loop
+        console.log("Game started. Initial BLOCK_SPEED_PER_SECOND:", BLOCK_SPEED_PER_SECOND, "Block initial right:", block.style.right);
     }
 
     function resetGame() {
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
-        gameStarted = false;
+        console.log("Resetting game...");
+        gameStarted = false; // This stops the gameLoop
         isGameOver = false;
         isJumping = false;
         verticalVelocity = 0;
         score = 0;
         scoreDisplay.textContent = 'Score: 0';
         
-        // Re-calculate dimensions on reset to ensure values are current
+        BLOCK_SPEED_PER_SECOND = 300; // Reset speed
+        
         updateGameDimensions();
 
-        character.style.bottom = `${characterBaseBottom}px`; // Use scaled value
-        block.style.right = `${blockStartRight}px`;         // Use scaled value
+        character.style.bottom = `0px`;
+        block.style.right = `${BLOCK_START_RIGHT_POSITION}px`;
+        
+        character.style.width = `${CHARACTER_WIDTH}px`;
+        character.style.height = `${CHARACTER_HEIGHT}px`;
+        block.style.width = `${BLOCK_WIDTH}px`;
+        block.style.height = `${BLOCK_HEIGHT}px`;
+
         character.style.transition = 'none';
+
+        firstCollisionCheckDelay = true;
+        setTimeout(() => {
+            firstCollisionCheckDelay = false;
+            console.log("Collision check enabled after reset.");
+        }, 200);
         
         introScreen.classList.remove('fade-hidden');
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.add('fade-hidden');
+        console.log("Game reset. BLOCK_SPEED_PER_SECOND reset to:", BLOCK_SPEED_PER_SECOND, "Block initial right:", block.style.right);
     }
 
-    function jump() {
+    // *** NEW: Main game loop using requestAnimationFrame ***
+    function gameLoop(currentTime) {
+        if (!gameStarted || isGameOver) {
+            return; // Stop the loop if game is not started or is over
+        }
+
+        const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert ms to seconds
+        lastFrameTime = currentTime;
+
+        updateGame(deltaTime); // Pass deltaTime to updateGame
+        moveBlock(deltaTime); // Pass deltaTime to moveBlock
+
+        requestAnimationFrame(gameLoop); // Request next frame
+    }
+
+    function jump() { // No deltaTime needed here, as it sets initial velocity
         if (isJumping || isGameOver) return;
         isJumping = true;
-        verticalVelocity = jumpForcePixels; // Use scaled jump force
+        verticalVelocity = JUMP_FORCE_BASE; // Set initial upward velocity
         character.style.transition = 'none';
     }
 
-    function moveBlock() {
+    // *** MODIFIED: Takes deltaTime as argument ***
+    function moveBlock(deltaTime) {
         if (isGameOver) return;
 
         let currentRight = parseFloat(block.style.right || 0);
-        currentRight += blockSpeedPixels; // Use scaled block speed
+        // Calculate movement based on speed PER SECOND and actual time elapsed
+        currentRight += BLOCK_SPEED_PER_SECOND * deltaTime;
         block.style.right = currentRight + 'px';
 
-        const gameContainerWidth = gameContainer.offsetWidth;
-        const blockWidth = block.offsetWidth;
-
-        if (currentRight > gameContainerWidth + blockWidth) {
-            block.style.right = `${-blockWidth}px`;
+        if (currentRight > baseGameWidth + BLOCK_WIDTH) {
+            block.style.right = `${BLOCK_START_RIGHT_POSITION - Math.random() * (baseGameWidth / 4)}px`;
             score += 10;
             scoreDisplay.textContent = 'Score: ' + score;
 
-            // Speed increase should also be proportional
             if (score > 0 && score % 50 === 0) {
-                // Ensure speed doesn't exceed a reasonable scaled maximum
-                const maxSpeed = 20 * (gameContainerWidth / baseGameWidth);
-                if (blockSpeedPixels < maxSpeed) {
-                    blockSpeedPixels += (1 * (gameContainerWidth / baseGameWidth)); // Scale the increase
-                    console.log(`Cactus speed increased to: ${blockSpeedPixels}`);
+                const MAX_BLOCK_SPEED_PER_SECOND = 700; // Adjust as needed
+                console.log(`Current BLOCK_SPEED_PER_SECOND before increase: ${BLOCK_SPEED_PER_SECOND}`);
+                if (BLOCK_SPEED_PER_SECOND < MAX_BLOCK_SPEED_PER_SECOND) {
+                    BLOCK_SPEED_PER_SECOND += 50; // Increase speed by 50 pixels/second
+                    console.log(`Cactus speed increased to: ${BLOCK_SPEED_PER_SECOND}`);
+                } else {
+                    console.log(`Max cactus speed (${MAX_BLOCK_SPEED_PER_SECOND}) reached.`);
                 }
             }
 
@@ -674,76 +647,78 @@ if (backButton) {
         }
     }
 
-    function updateGame() {
+    // *** MODIFIED: Takes deltaTime as argument ***
+    function updateGame(deltaTime) {
         if (isGameOver) return;
 
-        if (isJumping) {
-            verticalVelocity -= gravityPixels; // Use scaled gravity
-            let currentBottom = parseFloat(character.style.bottom);
-            let newBottom = currentBottom + verticalVelocity;
+        if (firstCollisionCheckDelay) {
+            return;
+        }
 
-            if (newBottom <= characterBaseBottom) { // Compare to scaled base bottom
-                newBottom = characterBaseBottom;
+        if (isJumping) {
+            // Apply gravity (acceleration) to verticalVelocity
+            verticalVelocity -= GRAVITY_ACCELERATION * deltaTime; // verticalVelocity is pixels/sec
+
+            let currentBottom = parseFloat(character.style.bottom);
+            // Apply current verticalVelocity (pixels/sec) over deltaTime (seconds) to get pixel change
+            let newBottom = currentBottom + verticalVelocity * deltaTime; 
+
+
+            if (newBottom <= 0) {
+                newBottom = 0;
                 isJumping = false;
                 verticalVelocity = 0;
             }
             character.style.bottom = newBottom + 'px';
         }
 
-        // Collision detection logic
         const characterRect = character.getBoundingClientRect();
         const blockRect = block.getBoundingClientRect();
 
         const horizontalOverlap = characterRect.left < blockRect.right && characterRect.right > blockRect.left;
-        // Scale the tolerance for vertical overlap as well
-        const verticalOverlap = characterRect.bottom > blockRect.top + (5 * (gameContainer.offsetHeight / baseGameHeight));
+        const verticalOverlap = characterRect.bottom > blockRect.top + 5; 
 
         if (horizontalOverlap && verticalOverlap) {
+            console.log("Collision detected!");
             gameOver();
         }
     }
 
     function gameOver() {
         isGameOver = true;
-        gameStarted = false;
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
+        gameStarted = false; // This will stop the gameLoop
         gameOverMessage.textContent = `Game Over! You scored: ${score} points.`;
         gameOverScreen.classList.remove('fade-hidden');
+        console.log("Game Over!");
     }
 
     function winGame() {
         isGameOver = true;
-        gameStarted = false;
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
+        gameStarted = false; // This will stop the gameLoop
         gameOverMessage.textContent = `You won! You scored ${score} points!`;
         gameOverScreen.classList.remove('fade-hidden');
         restartButton.textContent = 'Play Again?';
         socialLinksContainer.classList.remove('fade-hidden');
+        console.log("Game Won!");
     }
 
-    // Event listener for keyboard input (Spacebar for jump/start)
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' && !socialsWindow.classList.contains('fade-hidden')) {
             e.preventDefault();
             if (!gameStarted && !isGameOver) {
                 startGame();
             } else if (gameStarted) {
-                jump();
+                jump(); // Jump doesn't need deltaTime here as it just sets initial velocity
             }
         }
     });
 
-    // Event listeners for game control buttons
     restartButton.addEventListener('click', resetGame);
 
     skipGame.addEventListener('click', (e) => {
         e.preventDefault();
         isGameOver = true;
         gameStarted = false;
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
         gameOverScreen.classList.add('fade-hidden');
         introScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.remove('fade-hidden');
@@ -753,30 +728,20 @@ if (backButton) {
         e.preventDefault();
         isGameOver = true;
         gameStarted = false;
-        clearInterval(gameInterval);
-        clearInterval(blockInterval);
         introScreen.classList.add('fade-hidden');
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.remove('fade-hidden');
-       });
+    });
 
-    // --- NEW: Window resize listener for Dino game responsiveness ---
+    // Window resize listener for Dino game responsiveness
     window.addEventListener('resize', () => {
-        // Only update dimensions if the socials window (containing the game) is potentially active
-        // or if the game hasn't started yet but should be ready for play.
-        if (!socialsWindow.classList.contains('fade-hidden')) {
+        if (!socialsWindow.classList.contains('fade-hidden') || gameStarted) {
+            console.log("Window resized. Updating game dimensions.");
             updateGameDimensions();
-            // If the game is currently running and you resize, it's best to pause or reset
-            // to avoid abrupt visual glitches due to changed scales mid-jump/move.
-            // For simplicity, we'll just ensure variables are updated.
-            // A more complex solution might pause the game and ask the user to restart.
-        } else {
-             // If the socials window is hidden, still ensure game dimensions are correctly initialized
-             // for when it eventually opens.
-             updateGameDimensions();
         }
     });
 
-    // Initial call to set up dimensions when the page loads, before game starts
+    // Initial call to set the correct scale for the game container
+    // This runs when the page first loads.
     updateGameDimensions();
 });
