@@ -371,24 +371,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Contact Form Submission Logic (Consolidated) ---
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => { // Added 'async'
             e.preventDefault();
 
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
+            // Formspree URL
+            const formspreeUrl = "https://formspree.io/f/xdkdneez";
+            const formData = new FormData(contactForm);
 
-            console.log('Form Submitted!');
-            console.log('Name:', name);
-            console.log('Email:', email);
-            console.log('Message:', message);
+            try {
+                const response = await fetch(formspreeUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
-            alert('Thank you for your message, ' + name + '! I will get back to you soon.');
-
-            contactForm.reset();
-            const actualContactFormWindow = document.getElementById('contactFormWindow');
-            if (actualContactFormWindow) {
-                actualContactFormWindow.classList.add('fade-hidden');
+                if (response.ok) {
+                    alert('Thank you for your message! I will get back to you soon.');
+                    contactForm.reset();
+                    const actualContactFormWindow = document.getElementById('contactFormWindow');
+                    if (actualContactFormWindow) {
+                        actualContactFormWindow.classList.add('fade-hidden');
+                    }
+                } else {
+                    // Handle non-2xx responses from Formspree
+                    const data = await response.json();
+                    if (data.errors) {
+                        alert(data.errors.map(error => error.message).join(", "));
+                    } else {
+                        alert('Oops! There was a problem submitting your form.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Oops! There was a network error. Please try again.');
             }
         });
     }
@@ -538,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         character.style.bottom = `0px`;
         block.style.right = `${BLOCK_START_RIGHT_POSITION}px`;
-        
+
         character.style.width = `${CHARACTER_WIDTH}px`;
         character.style.height = `${CHARACTER_HEIGHT}px`;
         block.style.width = `${BLOCK_WIDTH}px`;
@@ -567,14 +584,14 @@ document.addEventListener('DOMContentLoaded', () => {
         verticalVelocity = 0;
         score = 0;
         scoreDisplay.textContent = 'Score: 0';
-        
+
         BLOCK_SPEED_PER_SECOND = 300; // Reset speed
-        
+
         updateGameDimensions();
 
         character.style.bottom = `0px`;
         block.style.right = `${BLOCK_START_RIGHT_POSITION}px`;
-        
+
         character.style.width = `${CHARACTER_WIDTH}px`;
         character.style.height = `${CHARACTER_HEIGHT}px`;
         block.style.width = `${BLOCK_WIDTH}px`;
@@ -587,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
             firstCollisionCheckDelay = false;
             console.log("Collision check enabled after reset.");
         }, 200);
-        
+
         introScreen.classList.remove('fade-hidden');
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.add('fade-hidden');
@@ -661,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let currentBottom = parseFloat(character.style.bottom);
             // Apply current verticalVelocity (pixels/sec) over deltaTime (seconds) to get pixel change
-            let newBottom = currentBottom + verticalVelocity * deltaTime; 
+            let newBottom = currentBottom + verticalVelocity * deltaTime;
 
 
             if (newBottom <= 0) {
@@ -676,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blockRect = block.getBoundingClientRect();
 
         const horizontalOverlap = characterRect.left < blockRect.right && characterRect.right > blockRect.left;
-        const verticalOverlap = characterRect.bottom > blockRect.top + 5; 
+        const verticalOverlap = characterRect.bottom > blockRect.top + 5;
 
         if (horizontalOverlap && verticalOverlap) {
             console.log("Collision detected!");
