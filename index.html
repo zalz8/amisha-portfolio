@@ -12,9 +12,11 @@
 <body>
 
 <div class="scene-container">
-  <img src="images/scene1.jpg" alt="Initial Retro Desktop View" id="scene1" class="scene active" style="z-index: 2;" />
+  <div class="scene-one-interactive-area active">
+    <img src="images/scene1.jpg" alt="Initial Retro Desktop View" id="scene1" class="scene active" style="z-index: 2;" />
+    <button id="redButton" aria-label="Click to start computer"></button>
+  </div>
   <img src="images/scene2.jpg" alt="Close-up of Computer Screen" id="scene2" class="scene" style="z-index: 1; display: none;" />
-  <button id="redButton" aria-label="Click to start computer"></button>
   <div class="led-screen-overlay fade-hidden"></div>
   <button id="monitorBackButton" class="fade-hidden" aria-label="Go back to previous scene"></button>
 

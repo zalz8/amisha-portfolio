@@ -2,13 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selections ---
     // Scene and Boot elements
     const redButton = document.getElementById('redButton');
-    const scene1 = document.getElementById('scene1');
+    const scene1 = document.getElementById('scene1'); // Keep for hiding/showing the img itself
     const scene2 = document.getElementById('scene2');
     const ledScreenOverlay = document.querySelector('.led-screen-overlay');
     const desktopIcons = document.querySelector('.desktop-icons');
     const bootSound = document.getElementById('bootSound');
     const backButton = document.getElementById('monitorBackButton');
     const instructionBox = document.getElementById('instructionBox'); // Instruction Box
+
+    // NEW SELECTION: The wrapper for scene1
+    const sceneOneInteractiveArea = document.querySelector('.scene-one-interactive-area');
 
     // Windows
     const projectsWindow = document.getElementById('projectsWindow');
@@ -312,13 +315,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         redButton.classList.add('fade-hidden');
-        scene1.classList.add('zooming'); // Applies zoomIn
+        // APPLY ZOOMING TO THE NEW WRAPPER
+        sceneOneInteractiveArea.classList.add('zooming');
 
         setTimeout(() => {
-            scene1.style.display = 'none';
-            scene1.classList.remove('zooming', 'active');
+            // Hide the wrapper for scene1 after zoom completes
+            sceneOneInteractiveArea.style.display = 'none';
+            sceneOneInteractiveArea.classList.remove('zooming', 'active'); // Remove active from wrapper
 
+            // Ensure scene1 image itself is also hidden/inactive if it was active
+            scene1.classList.remove('active'); // Remove active from the image itself
+            scene1.style.display = 'none'; // Ensure the image itself is hidden
+
+            // Show scene2
             scene2.style.display = 'block';
+            scene2.classList.add('active'); // Mark scene2 as active
 
             // Set display to block/flex first, then remove fade-hidden to trigger fade-in
             ledScreenOverlay.style.display = 'block';
@@ -350,10 +361,17 @@ if (backButton) {
         backButton.style.display = 'none';
 
         scene2.style.display = 'none'; // Hide scene2 immediately
-        scene1.style.display = 'block'; // Show scene1 immediately
-        scene1.classList.add('active'); // Ensure scene1 is active to display it
-        scene1.classList.remove('zooming');
-        scene1.classList.add('zooming-out'); // Start zoom-out animation on scene1
+        scene2.classList.remove('active'); // Remove active from scene2
+
+        // SHOW THE WRAPPER FOR SCENE1 AND APPLY ZOOMING-OUT
+        sceneOneInteractiveArea.style.display = 'block';
+        sceneOneInteractiveArea.classList.add('active'); // Mark wrapper active
+        sceneOneInteractiveArea.classList.remove('zooming'); // Ensure zooming is removed before zooming-out
+        sceneOneInteractiveArea.classList.add('zooming-out');
+
+        // Also ensure scene1 image inside the wrapper is shown
+        scene1.style.display = 'block';
+        scene1.classList.add('active');
 
         if (bootSound) {
             bootSound.currentTime = 0;
@@ -363,7 +381,8 @@ if (backButton) {
         // This setTimeout is only needed to remove the 'zooming-out' class
         // and make the red button visible after scene1's animation completes.
         setTimeout(() => {
-            scene1.classList.remove('zooming-out');
+            // Remove zooming-out from the wrapper
+            sceneOneInteractiveArea.classList.remove('zooming-out');
             redButton.classList.remove('fade-hidden'); // Red button fades back in
         }, 1700); // This timeout should match your zoomOut animation duration
     });

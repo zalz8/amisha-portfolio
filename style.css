@@ -15,7 +15,34 @@ body {
   overflow: hidden;
 }
 
+/* NEW: Wrapper for scene1 and its interactive elements */
+.scene-one-interactive-area {
+  position: absolute; /* Positions this wrapper within scene-container */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none; /* Hidden by default, JS will manage its display */
+}
+
+/* Ensure only the active wrapper is shown */
+.scene-one-interactive-area.active {
+    display: block;
+}
+
 /* Individual scene images */
+/* #scene1 now lives inside .scene-one-interactive-area */
+#scene1 {
+  position: absolute; /* Position relative to .scene-one-interactive-area */
+  top: 0;
+  left: 0;
+  width: 100%; /* Make the image fill its wrapper */
+  height: 100%; /* Make the image fill its wrapper */
+  object-fit: cover; /* Ensures image covers the area, potentially cropping */
+  z-index: 2; /* Keep its z-index */
+}
+
+/* Other scenes outside the interactive area for scene1 */
 .scene {
   position: absolute;
   top: 0;
@@ -31,7 +58,7 @@ body {
     display: block; /* Only the active scene should be displayed */
 }
 
-/* Zoom animation for the initial scene */
+/* Zoom animation for the initial scene - APPLY TO THE NEW WRAPPER */
 @keyframes zoomIn {
   0% {
     transform: scale(1);
@@ -40,20 +67,22 @@ body {
     transform: scale(1.80);
   }
 }
-.zooming {
+.zooming { /* Apply this to .scene-one-interactive-area */
   animation: zoomIn 1.7s ease forwards;
-  transform-origin:  50% 50.25%;
+  transform-origin:  50% 50.25%; /* Keep your desired origin */
 }
 
-/* Red button */
+/* Red button - NOW USE PERCENTAGES RELATIVE TO THE NEW WRAPPER */
 #redButton {
   position: absolute;
-  top: 68.9%;
-  left: 54.6%;
-  width: 20px;
-  height: 10px;
-  background-color: transparent;
-  border: none;
+  /* !!! FINE-TUNE THESE PERCENTAGE VALUES !!! */
+  /* These percentages are relative to the .scene-one-interactive-area's size */
+  top: 65%;   /* Initial estimate, adjust based on visual alignment */
+  left: 53%;  /* Initial estimate, adjust based on visual alignment */
+  width: 27%;  /* Initial estimate, adjust for desired button size relative to image */
+  height: 20%; /* Initial estimate, adjust for desired button size relative to image */
+  background-color: transparent; /* Keep transparent for final use */
+  border: none; /* Keep none for final use */
   border-radius: 50%;
   cursor: pointer;
   z-index: 10;
@@ -65,8 +94,8 @@ body {
   position: absolute;
   top: 84.8%;
   left: 58.8%;
-  width: 30px;
-  height: 15px;
+  width: 100px;
+  height: 100px;
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -684,6 +713,8 @@ body {
 }
 
 /* Responsive adjustments */
+/* These media queries still apply to fixed-size elements or if you need
+   to override percentage values for specific breakpoints. */
 @media (max-width: 600px) {
     .desktop-icons {
         left: 10px;
@@ -701,12 +732,17 @@ body {
         height: 28px;
     }
 
+    /* #redButton positioning and size should now be handled by percentages
+       relative to .scene-one-interactive-area, so these might not be needed
+       or would override only if very specific adjustments are required. */
+    /*
     #redButton {
         width: 50px;
         height: 50px;
         bottom: 10px;
         right: 10px;
     }
+    */
 
     #monitorBackButton {
         width: 70px;
@@ -723,7 +759,7 @@ body {
     }
 }
 
-/* Zoom-out animation for the initial scene */
+/* Zoom-out animation for the initial scene - APPLY TO NEW WRAPPER */
 @keyframes zoomOut {
   0% {
     transform: scale(1.80); /* Starts from the zoomed-in state */
@@ -735,8 +771,8 @@ body {
   }
 }
 
-.zooming-out {
-  animation: zoomOut 1.7s ease forwards; /* Apply this class for the zoom-out */
+.zooming-out { /* Apply this to .scene-one-interactive-area */
+  animation: zoomOut 1.7s ease forwards;
   transform-origin: 50% 50.25%; /* Same origin as zoom-in for consistency */
 }
 
