@@ -552,12 +552,42 @@ if (backButton) {
     let isJumping = false;
     let isGameOver = false;
     let gameStarted = false;
-    const jumpForce = 12;
-    const gravity = 0.5;
-    let verticalVelocity = 0;
 
-    const scoreToWin = 30;
-    let blockSpeed = 6;
+    // Responsive Game Variables
+    let jumpForcePixels;
+    let gravityPixels;
+    let characterBaseBottom;
+    let blockStartRight;
+    let blockSpeedPixels;
+
+    const scoreToWin = 30; // Target score to win remains the same
+    const baseGameWidth = 500; // Original optimal width of your game container
+    const baseGameHeight = 200; // Original optimal height of your game container
+
+    // Function to update game variables based on current container size
+    function updateGameDimensions() {
+        const gameContainerHeight = gameContainer.offsetHeight;
+        const gameContainerWidth = gameContainer.offsetWidth;
+
+        const scaleFactor = gameContainerWidth / baseGameWidth;
+
+        // Apply scale factor to all pixel-based game variables
+        jumpForcePixels = 12 * scaleFactor;
+        gravityPixels = 0.5 * scaleFactor;
+        blockSpeedPixels = 6 * scaleFactor;
+
+        // Initial positions should also scale
+        characterBaseBottom = 0; // Character always starts at the bottom
+        blockStartRight = -30 * scaleFactor; // Block starts off-screen right
+
+        // Optional: Scale character/block CSS dimensions if they are fixed in CSS
+        // Ensure character and block images scale appropriately with the container
+        character.style.width = `${40 * scaleFactor}px`;
+        character.style.height = `${40 * scaleFactor}px`;
+        block.style.width = `${30 * scaleFactor}px`;
+        block.style.height = `${40 * scaleFactor}px`;
+    }
+
 
     function startGame() {
         if (gameStarted) return;
@@ -569,12 +599,16 @@ if (backButton) {
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.add('fade-hidden');
 
-        character.style.bottom = '0px';
-        block.style.right = '-30px';
+        // Reset positions using the calculated scaled values
+        character.style.bottom = `${characterBaseBottom}px`;
+        block.style.right = `${blockStartRight}px`;
         character.style.transition = 'none';
 
         clearInterval(gameInterval);
         clearInterval(blockInterval);
+
+        // Update dimensions before starting the game
+        updateGameDimensions();
 
         gameInterval = setInterval(updateGame, 20);
         blockInterval = setInterval(moveBlock, 5);
@@ -589,11 +623,14 @@ if (backButton) {
         verticalVelocity = 0;
         score = 0;
         scoreDisplay.textContent = 'Score: 0';
-        character.style.bottom = '0px';
-        block.style.right = '-30px';
-        character.style.transition = 'none';
-        blockSpeed = 6;
+        
+        // Re-calculate dimensions on reset to ensure values are current
+        updateGameDimensions();
 
+        character.style.bottom = `${characterBaseBottom}px`; // Use scaled value
+        block.style.right = `${blockStartRight}px`;         // Use scaled value
+        character.style.transition = 'none';
+        
         introScreen.classList.remove('fade-hidden');
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.add('fade-hidden');
@@ -602,28 +639,33 @@ if (backButton) {
     function jump() {
         if (isJumping || isGameOver) return;
         isJumping = true;
-        verticalVelocity = jumpForce;
+        verticalVelocity = jumpForcePixels; // Use scaled jump force
         character.style.transition = 'none';
     }
 
     function moveBlock() {
         if (isGameOver) return;
 
-        let currentRight = parseInt(block.style.right || 0);
-        currentRight += blockSpeed;
+        let currentRight = parseFloat(block.style.right || 0);
+        currentRight += blockSpeedPixels; // Use scaled block speed
         block.style.right = currentRight + 'px';
 
         const gameContainerWidth = gameContainer.offsetWidth;
         const blockWidth = block.offsetWidth;
 
         if (currentRight > gameContainerWidth + blockWidth) {
-            block.style.right = -blockWidth + 'px';
+            block.style.right = `${-blockWidth}px`;
             score += 10;
             scoreDisplay.textContent = 'Score: ' + score;
 
-            if (score > 0 && score % 50 === 0 && blockSpeed < 20) {
-                blockSpeed += 1;
-                console.log(`Cactus speed increased to: ${blockSpeed}`);
+            // Speed increase should also be proportional
+            if (score > 0 && score % 50 === 0) {
+                // Ensure speed doesn't exceed a reasonable scaled maximum
+                const maxSpeed = 20 * (gameContainerWidth / baseGameWidth);
+                if (blockSpeedPixels < maxSpeed) {
+                    blockSpeedPixels += (1 * (gameContainerWidth / baseGameWidth)); // Scale the increase
+                    console.log(`Cactus speed increased to: ${blockSpeedPixels}`);
+                }
             }
 
             if (score >= scoreToWin) {
@@ -636,12 +678,12 @@ if (backButton) {
         if (isGameOver) return;
 
         if (isJumping) {
-            verticalVelocity -= gravity;
-            let currentBottom = parseInt(character.style.bottom);
+            verticalVelocity -= gravityPixels; // Use scaled gravity
+            let currentBottom = parseFloat(character.style.bottom);
             let newBottom = currentBottom + verticalVelocity;
 
-            if (newBottom <= 0) {
-                newBottom = 0;
+            if (newBottom <= characterBaseBottom) { // Compare to scaled base bottom
+                newBottom = characterBaseBottom;
                 isJumping = false;
                 verticalVelocity = 0;
             }
@@ -652,12 +694,9 @@ if (backButton) {
         const characterRect = character.getBoundingClientRect();
         const blockRect = block.getBoundingClientRect();
 
-        // Check for horizontal overlap
         const horizontalOverlap = characterRect.left < blockRect.right && characterRect.right > blockRect.left;
-
-        // Check for vertical overlap (character's feet are at or below the block's top)
-        // A small tolerance (e.g., 5px) can be added to the character's bottom
-        const verticalOverlap = characterRect.bottom > blockRect.top + 5; // Adjusted for better jump detection
+        // Scale the tolerance for vertical overlap as well
+        const verticalOverlap = characterRect.bottom > blockRect.top + (5 * (gameContainer.offsetHeight / baseGameHeight));
 
         if (horizontalOverlap && verticalOverlap) {
             gameOver();
@@ -720,4 +759,24 @@ if (backButton) {
         gameOverScreen.classList.add('fade-hidden');
         socialLinksContainer.classList.remove('fade-hidden');
        });
+
+    // --- NEW: Window resize listener for Dino game responsiveness ---
+    window.addEventListener('resize', () => {
+        // Only update dimensions if the socials window (containing the game) is potentially active
+        // or if the game hasn't started yet but should be ready for play.
+        if (!socialsWindow.classList.contains('fade-hidden')) {
+            updateGameDimensions();
+            // If the game is currently running and you resize, it's best to pause or reset
+            // to avoid abrupt visual glitches due to changed scales mid-jump/move.
+            // For simplicity, we'll just ensure variables are updated.
+            // A more complex solution might pause the game and ask the user to restart.
+        } else {
+             // If the socials window is hidden, still ensure game dimensions are correctly initialized
+             // for when it eventually opens.
+             updateGameDimensions();
+        }
+    });
+
+    // Initial call to set up dimensions when the page loads, before game starts
+    updateGameDimensions();
 });
